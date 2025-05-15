@@ -1,3 +1,8 @@
+#include <DFRobot_ENS160.h>
+#include <SensirionI2CSen5x.h>
+#include <Wire.h>
+#include "config.h"
+
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
