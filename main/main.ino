@@ -3,12 +3,14 @@
 #include <DFRobot_ENS160.h>
 //#include <SensirionI2CSen5x.h>
 #include <Wire.h>
-//#include "config.h"
+#include "config.h"
 
 DFRobot_ENS160_I2C ENS160(&Wire, /*I2CAddr*/ 0x53);
 
-const bool verbous = true;
+const bool verbous = false;
 bool led_status = 1;
+AdafruitIO_Feed *co2 = io.feed("co2");
+AdafruitIO_Feed *voc = io.feed("voc");
 
 void setup_ens160(float temperature, float humidity){
   // Assumes you have made Serial.begin before this func
@@ -38,17 +40,28 @@ void setup() {
   Serial.begin(115200);
   setup_ens160(/*temperature=*/25.0, /*humidity=*/50.0);  // TODO: change these to be the measurements from P2.5 sensor
 
+  io.connect();
+  // wait for a connection
+  while(io.status() < AIO_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+  }
+
+  // we are connected
+  Serial.println();
+  Serial.println(io.statusText());
   pinMode(LED_BUILTIN, OUTPUT);
 
 }
 
 void loop() {
-  uint8_t Status = ENS160.getENS160Status(); // 0-Normal, 1-Warm-Up, 2-initial
-  uint8_t AQI    = ENS160.getAQI();          // air quality index. 1-Excellent, 2-Good, 3-Moderate, 4-Poor, 5-Unhealthy
-  uint16_t TVOC  = ENS160.getTVOC();
-  uint16_t ECO2  = ENS160.getECO2();
+  io.run();
+  uint8_t  AQI   = ENS160.getAQI();          // air quality index. 1-Excellent, 2-Good, 3-Moderate, 4-Poor, 5-Unhealthy
+  uint16_t TVOC  = ENS160.getTVOC();         // Total volatile organic compounds
+  uint16_t ECO2  = ENS160.getECO2();         // co2 equivalent
 
   if(verbous){
+    uint8_t Status = ENS160.getENS160Status(); // 0-Normal, 1-Warm-Up, 2-initial
     Serial.print("Sensor operating status : ");
     Serial.println(Status);
     Serial.print("Air quality index : ");
@@ -64,5 +77,8 @@ void loop() {
 
   led_status = !led_status;
   digitalWrite(LED_BUILTIN, led_status);
-  delay(1000);
+  co2->save(ECO2);
+  voc->save(TVOC);
+
+  delay(4000);
 }
