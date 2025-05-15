@@ -22,6 +22,9 @@ void setup() {
     Serial.println(error);
     return;
   }
+  else{
+    Serial.println("No error 1");
+  }
 
   delay(200);  // let it stabilize
 
@@ -30,6 +33,9 @@ void setup() {
     Serial.print("Start measurement failed: ");
     Serial.println(error);
     return;
+  }
+  else{
+    Serial.println("No error 2");
   }
 }
 
