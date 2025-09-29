@@ -7,6 +7,8 @@ To connect this Iot device to Wifi:
 3) The device will remain in that wifi until it cant get that wifi. In that case it will make a hotspot again.
 
 What you have to setup:
-in the file /main/config.h.example
-write your adafruitIO keys.
-Remove .example from filename so it becomes config.h
+copy the file /main/config.h.example
+Name copy as as config.h
+write your adafruitIO keys there
+That file is hidden from git
+
