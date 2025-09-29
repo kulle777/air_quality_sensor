@@ -1,8 +1,15 @@
 // To use serial you MUST have tools -> USB cdc on boot = enabled !!!
 
+// To connect this Iot device to Wifi:
+// 1) Power it
+// 2) It will produce a wifi hotspot that you connect to and setup wifi
+// 3) The device will remain in that wifi until it cant get that wifi. In that case it will make a hotspot again.
+
 #include <DFRobot_ENS160.h>
 //#include <SensirionI2CSen5x.h>
 #include <Wire.h>
+#include <WiFiManager.h>
+#include "AdafruitIO_WiFi.h"
 #include "config.h"
 
 #define uS_TO_S_FACTOR 1000000ULL // Conversion factor for micro seconds to seconds
@@ -10,6 +17,8 @@ DFRobot_ENS160_I2C ENS160(&Wire, /*I2CAddr*/ 0x53);
 
 const bool debug = false;
 bool led_status = 1;
+
+AdafruitIO_WiFi io(IO_USERNAME, IO_KEY, "", "");  // Dont give wifi name and password. Do this with wifimanager
 AdafruitIO_Feed *co2 = io.feed("co2");
 AdafruitIO_Feed *voc = io.feed("voc");
 
@@ -43,6 +52,11 @@ void setup_ens160(float temperature, float humidity){
 }
 
 void setup() {
+  WiFi.mode(WIFI_STA);
+  WiFiManager wm;
+  // wm.resetSettings();
+  wm.autoConnect("KallesIotAirQualitySensor");
+
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
   setup_ens160(/*temperature=*/25.0, /*humidity=*/50.0);  // TODO: change these to be the measurements from P2.5 sensor
